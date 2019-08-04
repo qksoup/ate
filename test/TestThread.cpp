@@ -149,7 +149,7 @@ namespace {
     class ContextThread : public Thread {
     public:
         ContextThread(EventLoop& evloop)
-            : Thread(true), m_evloop(evloop), m_added(false) {}
+            : Thread(true), m_evloop(evloop) {}
         void run() {            
             int n;
             Event event;
@@ -165,22 +165,10 @@ namespace {
                 }
                 
                 Thread::sleep(60);
-                if (!m_added) {
-                    int millis = 6000;
-                    Timer timer;
-                    timer.time = MicroTime::now().add(millis);
-                    timer.increment = -1;
-                    timer.tcb = stopLoop;
-                    timer.aux = &m_evloop;
-                    m_evloop.addTimer(timer);
-                    mylog("added timer " << millis);
-                    m_added = true;
-                }
             }
         }
     private:
         EventLoop& m_evloop;
-        bool m_added;
     };
 
     class MyEventLoop : public EventLoop {
@@ -194,6 +182,16 @@ namespace {
         MyEventLoop evloop;
         ContextThread ctxThread(evloop);
         ctxThread.start();
+        // add timer
+        int millis = 6000;
+        Timer timer;
+        timer.time = MicroTime::now().add(millis);
+        timer.increment = -1;
+        timer.tcb = stopLoop;
+        timer.aux = &evloop;
+        evloop.addTimer(timer);
+        mylog("added timer " << millis);
+        // ready to run
         evloop.run();
         mylog("evloop stopped");
         ctxThread.join();

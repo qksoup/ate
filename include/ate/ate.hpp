@@ -335,7 +335,7 @@ namespace ate {
         EventLoop();
         virtual ~EventLoop() {}
         void push(const Event& event);
-        void addTimer(const Timer& timer);
+        void addTimer(const Timer& timer);//NOT thread safe: require loop thread
         void run(int millis = 0);
         void setRunning(bool b) { m_running = b; }
         bool isRunning() { return m_running; }

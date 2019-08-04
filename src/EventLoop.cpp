@@ -58,13 +58,7 @@ namespace ate {
     
     void EventLoop::addTimer(const Timer& timer)
     {
-        LockGuard<Monitor> guard(m_monitor);
-        const MicroTime& min = m_timers.minTime();
         m_timers.add(timer);
-        if (timer.time < min) { // new time is a new min
-            m_evq.m_waitTime = timer.time;
-            m_monitor.notify(); // wake up event queue to reset its wait time
-        }
     }
     
     EventNode* EventLoop::getWork(const MicroTime& now, bool& waited)
